@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paramount Q4 Sprints</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: left sidebar (months + session filters) beside a Monday–Friday calendar; stacks on narrow screens */
+:root{
+  --bg:#FFFFFF;
+  --stable:#21245C;
+  --fresh:#00ADED;
+  --text:#333333;
+  --subtle:#8A8FA3;
+  --chip:#F6F7FA;
+  --cell:#FAFBFC;
+  --line:#EEF0F4;
+  --mgr-grad:linear-gradient(135deg,#21245C 0%,#00ADED 100%);
+  --mgr-glow:rgba(33,36,92,.5);
+  --mgr-soft:#9FB3D9;
+  --sls-grad:linear-gradient(135deg,#E34554 0%,#F05A28 100%);
+  --sls-glow:rgba(227,69,84,.45);
+  --sls-soft:#F2B3A6;
+  --c-len:#0045C2;   /* everything for Len */
+  --c-team:#E0521F;  /* everything for the sales team */
+  /* Coaching (Dan) = solid chip. Training (Sprint) = outlined chip. */
+  --font:'Poppins',Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+.shell{display:flex;min-height:100vh;}
+.nav{width:270px;flex:0 0 270px;padding-block:44px;padding-inline:40px 26px;display:flex;flex-direction:column;gap:30px;}
+.nav-title{font-size:13px;font-weight:400;color:var(--subtle);letter-spacing:.04em;margin:0 0 4px 0;}
+.nav-name{font-size:20px;font-weight:500;color:var(--stable);margin:0;}
+.stack{display:flex;flex-direction:column;gap:10px;}
+.stack a,.stack button{
+  display:block;font-family:var(--font);font-size:16px;font-weight:500;cursor:pointer;text-decoration:none;text-align:left;
+  padding:17px 22px;border-radius:999px;border:0;background:var(--chip);color:var(--stable);
+  transition:transform .15s ease, box-shadow .2s ease;
+}
+.stack button{font-size:14px;padding:15px 22px;}
+.stack a:hover,.stack button:hover{transform:translateX(3px);}
+.stack a:focus-visible,.stack button:focus-visible{outline:3px solid var(--fresh);outline-offset:2px;}
+.stack a.active,.stack button.on{color:#FFFFFF;background:var(--grad);box-shadow:0 10px 24px -8px var(--glow);}
+.filters{display:flex;flex-direction:column;gap:22px;padding-left:4px;}
+.fgroup{display:flex;flex-direction:column;gap:4px;}
+.fitem{display:flex;align-items:center;gap:12px;font-family:var(--font);font-size:19px;font-weight:400;color:var(--subtle);
+  background:none;border:0;padding:4px 0;cursor:pointer;text-align:left;}
+.fitem:hover{color:var(--stable);}
+.fitem:focus-visible{outline:3px solid var(--fresh);outline-offset:2px;border-radius:6px;}
+.box{width:18px;height:18px;border-radius:5px;flex:0 0 18px;border:2px solid #C9CCD8;display:grid;place-items:center;transition:background .15s ease,border-color .15s ease;}
+.box svg{width:11px;height:11px;opacity:0;}
+.fitem.on{color:var(--stable);}
+.box{color:#FFFFFF;}
+.fitem.on .box{background:var(--c);border-color:var(--c);}
+.fitem.on .box svg{opacity:1;}
+.fitem.all{font-size:15px;font-weight:500;}
+.fitem.all{--c:var(--stable);}
+.fitem[data-f="len"]{--c:var(--c-len);}
+.fitem[data-f="team"]{--c:var(--c-team);}
+.main{flex:1;min-width:0;padding-block:44px 60px;padding-inline:26px 48px;display:flex;flex-direction:column;gap:30px;}
+.month-title{font-size:32px;font-weight:500;margin:0;color:var(--stable);}
+.scroll{overflow-x:auto;}
+.grid{width:100%;min-width:680px;border-collapse:separate;border-spacing:10px;table-layout:fixed;}
+.grid th{font-size:12px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--subtle);text-align:left;padding:0 6px 8px 6px;width:20%;}
+.grid td{vertical-align:top;height:130px;padding:12px 13px;border-radius:16px;background:var(--cell);}
+.grid td.blank{background:transparent;}
+.daynum{font-size:14px;font-weight:400;color:var(--subtle);}
+td.has-key .daynum{color:var(--stable);font-weight:500;}
+.ev{margin-top:6px;padding:5px 8px;border-radius:7px;}
+.ev.tl,.ev.tt{background:#FFFFFF;border:1.5px solid var(--c);color:var(--c);padding:4px 7px;}
+.ev.cl,.ev.ct{background:var(--c);color:#FFFFFF;}
+.ev.tl,.ev.cl{--c:var(--c-len);}
+.ev.tt,.ev.ct{--c:var(--c-team);}
+.ev-name{font-size:12px;font-weight:600;line-height:1.25;}
+.ev-who{font-size:10.5px;font-weight:400;margin-top:2px;opacity:.9;}
+.ev-time{font-size:10.5px;font-weight:400;margin-top:1px;opacity:.75;}
+@media (max-width:900px){
+  .shell{flex-direction:column;min-height:0;}
+  .nav{width:auto;flex:none;padding-block:32px 8px;padding-inline:16px;gap:16px;}
+  .stack{flex-direction:row;flex-wrap:wrap;}
+  .stack a:hover,.stack button:hover{transform:none;}
+  .filters{flex-direction:row;flex-wrap:wrap;gap:28px;}
+  .main{padding-block:16px 48px;padding-inline:16px;}
+  .month-title{font-size:26px;}
+}
+@media (prefers-reduced-motion:reduce){ .stack a,.stack button{transition:none;} .stack a:hover,.stack button:hover{transform:none;} }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="nav">
+    <div>
+      <p class="nav-title">Paramount</p>
+      <p class="nav-name">Q4 Session Calendar</p>
+    </div>
+    <div class="stack" id="navList"></div>
+    <div class="filters" role="group" aria-label="Filter sessions">
+      <button type="button" class="fitem all" id="f-all" aria-pressed="true"><span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Show all</button>
+      <div class="fgroup">
+        <button type="button" class="fitem" id="f-len" data-f="len" aria-pressed="true"><span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Len</button>
+        <button type="button" class="fitem" id="f-team" data-f="team" aria-pressed="true"><span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Team</button>
+      </div>
+    </div>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+/* Add a session: one line below. Date is YYYY-MM-DD. type is "manager" or "sales".
+   sprint: true = Lushin sprint session (outlined chip); otherwise Dan coaching (solid chip). A new month creates its own tab automatically. */
+const MEETINGS = [
+  // October
+  { date:"2026-10-07", time:"1:00 PM–2:00 PM CT", title:"Dan/Len", type:"manager" },
+  { date:"2026-10-21", time:"1:00 PM–2:00 PM CT", title:"Dan/Team", type:"sales" },
+  { date:"2026-10-23", time:"2:30 PM–3:30 PM CT", title:"Dan/Len", type:"manager" },
+  { date:"2026-10-27", time:"12:00 PM CT", title:"Building Trust with Your Team", who:"Len", type:"manager", sprint:true },
+  { date:"2026-10-29", time:"12:00 PM–1:00 PM CT", title:"Dan/Team", type:"sales" },
+  // November
+  { date:"2026-11-03", time:"12:00 PM CT", title:"Getting Decisions", who:"Enoch, Linton, Amy", type:"sales", sprint:true },
+  { date:"2026-11-06", time:"2:30 PM–3:30 PM CT", title:"Dan/Len", type:"manager" },
+  { date:"2026-11-10", time:"12:00 PM CT", title:"Building Trust with Your Team", who:"Len", type:"manager", sprint:true },
+  { date:"2026-11-09", time:"12:00 PM–1:00 PM CT", title:"Dan/Team", type:"sales" },
+  { date:"2026-11-17", time:"12:00 PM CT", title:"Getting Decisions", who:"Enoch, Linton, Amy", type:"sales", sprint:true },
+  { date:"2026-11-20", time:"2:30 PM–3:30 PM CT", title:"Dan/Len", type:"manager" },
+  { date:"2026-11-23", time:"12:00 PM–1:00 PM CT", title:"Dan/Team", type:"sales" },
+  // December
+  { date:"2026-12-02", time:"12:00 PM–1:00 PM CT", title:"Dan/Team", type:"sales" },
+  { date:"2026-12-04", time:"2:30 PM–3:30 PM CT", title:"Dan/Len", type:"manager" },
+  { date:"2026-12-10", time:"12:00 PM CT", title:"Selling with AI", who:"Enoch, Linton, Amy", type:"sales", sprint:true },
+  { date:"2026-12-16", time:"9:00 AM–10:00 AM CT", title:"Dan/Team", type:"sales" },
+  { date:"2026-12-18", time:"2:30 PM–3:30 PM CT", title:"Dan/Len", type:"manager" }
+];
+
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+const MONTH_GRADS = [
+  { grad:"linear-gradient(135deg,#21245C 0%,#00ADED 100%)", glow:"rgba(33,36,92,.5)" },
+  { grad:"linear-gradient(135deg,#0045C2 0%,#00ADED 100%)", glow:"rgba(0,69,194,.45)" },
+  { grad:"linear-gradient(135deg,#F05A28 0%,#FAB040 100%)", glow:"rgba(240,90,40,.45)" }
+];
+
+/* Filters: len = everything for Len, team = everything for the sales team. Either or both can be on. */
+const FILTER_KEYS = ["len","team"];
+function kindOf(e){ return (e.sprint ? "t" : "c") + (e.type === "manager" ? "l" : "t"); }
+let shown = new Set(FILTER_KEYS);
+try {
+  const saved = JSON.parse(localStorage.getItem("paramountQ4Audience") || "null");
+  if (Array.isArray(saved)) shown = new Set(saved.filter(k => FILTER_KEYS.includes(k)));
+} catch(e){}
+
+function startMinutes(t){
+  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(t); if(!m) return 0;
+  let h = parseInt(m[1],10) % 12; if(m[3].toUpperCase()==="PM") h += 12;
+  return h*60 + parseInt(m[2],10);
+}
+
+const months = [];
+MEETINGS.forEach(mt => {
+  const [y, mm, d] = mt.date.split("-").map(Number);
+  const key = y + "-" + String(mm).padStart(2,"0");
+  let entry = months.find(x => x.key === key);
+  if(!entry){ entry = { key, y, m:mm-1, days:{} }; months.push(entry); }
+  (entry.days[d] = entry.days[d] || []).push(Object.assign({ sort:startMinutes(mt.time) }, mt));
+});
+months.sort((a,b) => a.y - b.y || a.m - b.m);
+months.forEach((mo,i) => {
+  mo.palette = MONTH_GRADS[i % MONTH_GRADS.length];
+  Object.values(mo.days).forEach(list => list.sort((a,b) => a.sort - b.sort));
+});
+
+document.getElementById("navList").innerHTML = months.map(mo =>
+  '<a href="#' + mo.key + '" data-key="' + mo.key + '" style="--grad:' + mo.palette.grad + ';--glow:' + mo.palette.glow + '">' + MONTH_NAMES[mo.m] + '</a>'
+).join("");
+
+function weekRows(mo){
+  const offset = (new Date(mo.y, mo.m, 1).getDay() + 6) % 7;
+  const last = new Date(mo.y, mo.m + 1, 0).getDate();
+  const rows = [];
+  for(let d = 1; d <= last; d++){
+    const slot = (offset + d - 1) % 7, week = Math.floor((offset + d - 1) / 7);
+    if(slot > 4) continue;
+    if(!rows[week]) rows[week] = [null,null,null,null,null];
+    rows[week][slot] = d;
+  }
+  return rows.filter(Boolean);
+}
+
+function routeKey(){
+  const h = location.hash.replace("#","");
+  return months.some(m => m.key === h) ? h : months[0].key;
+}
+
+function render(){
+  const mo = months.find(x => x.key === routeKey()) || months[0];
+  document.querySelectorAll("#navList a").forEach(a => a.classList.toggle("active", a.dataset.key === mo.key));
+  document.querySelectorAll(".fitem[data-f]").forEach(b => {
+    const on = shown.has(b.dataset.f);
+    b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+  });
+  const allOn = shown.size === FILTER_KEYS.length;
+  const allBtn = document.getElementById("f-all");
+  allBtn.classList.toggle("on", allOn); allBtn.setAttribute("aria-pressed", String(allOn));
+
+  let html = '<h1 class="month-title">' + MONTH_NAMES[mo.m] + ' ' + mo.y + '</h1>';
+  html += '<div class="scroll"><table class="grid"><thead><tr>' + DAY_NAMES.map(d => '<th>' + d + '</th>').join("") + '</tr></thead><tbody>';
+  weekRows(mo).forEach(row => {
+    html += '<tr>';
+    row.forEach(d => {
+      if(d === null){ html += '<td class="blank"></td>'; return; }
+      let events = mo.days[d] || [];
+      events = events.filter(e => shown.has(e.type === "manager" ? "len" : "team"));
+      html += '<td class="' + (events.length ? 'has-key' : '') + '"><div class="daynum">' + d + '</div>';
+      events.forEach(e => {
+        html += '<div class="ev ' + kindOf(e) + '"><div class="ev-name">' + e.title + '</div>' +
+                (e.who ? '<div class="ev-who">' + e.who + '</div>' : '') +
+                '<div class="ev-time">' + e.time + '</div></div>';
+      });
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById("main").innerHTML = html;
+}
+
+function save(){ try { localStorage.setItem("paramountQ4Audience", JSON.stringify([...shown])); } catch(e){} render(); }
+document.querySelectorAll(".fitem[data-f]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.f; shown.has(k) ? shown.delete(k) : shown.add(k); save();
+}));
+document.getElementById("f-all").addEventListener("click", () => { shown = new Set(FILTER_KEYS); save(); });
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
